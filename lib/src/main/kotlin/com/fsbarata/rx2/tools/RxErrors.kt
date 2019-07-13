@@ -36,7 +36,7 @@ fun countErrorTransformation(limit: Int, start: Int = 0, updater: (Int) -> Int =
 				val count = counter.get()
 				val newCount = updater(count)
 				counter.set(newCount)
-				if (count > limit) Single.error(throwable)
+				if (newCount > limit) Single.error(throwable)
 				else Single.just(throwable)
 			}
 		}
