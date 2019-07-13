@@ -3,27 +3,38 @@ package com.fsbarata.rx2.tools
 import io.reactivex.Observable
 
 fun <K, V> Observable<Map<K, V>>.deltas() =
-		startWith(emptyMap()).buffer(2, 1)
-				.map { Pair(it[0], it[1]) }
-				.map { (oldMap, newMap) ->
-					val oldItems = oldMap.toList()
-					newMap.toList().filter { !oldItems.contains(it) }.toMap()
-				}
-
-fun <T, U> Observable<List<T>>.reuse(keySelector: (T) -> Any? = { it }, transform: (T) -> U): Observable<List<U>> =
-		scan(emptyMap<Any?, U>()) { oldResult, newList ->
-			oldResult.filterKeys { newList.map(keySelector).contains(it) } +
-					newList.filter { !oldResult.containsKey(keySelector(it)) }
-							.map { Pair(keySelector(it), transform(it)) }
-							.toMap()
-		}.skip(1).map { it.values.toList() }
+		startWith(emptyMap())
+				.buffer(2, 1)
+				.map { (oldMap, newMap) -> (newMap.toList() - oldMap.toList()).toMap() }
 
 fun <K, V, T> Observable<Map<K, V>>.reuseValues(transform: (K, V) -> T): Observable<Map<K, T>> =
-		map { it.toList() }
-				.reuse({ (key, _) -> key }) { (key, value) -> key to transform(key, value) }
-				.map { it.toMap() }
+		scan(emptyMap<K, T>()) { oldResult, newMap ->
+			val newKeys = newMap.keys
+			val oldKeys = oldResult.keys
+
+			val keysToRemove = oldKeys - newKeys
+			val retainedMap = oldResult - keysToRemove
+
+			val diffResultMap = (newMap - oldKeys).mapValues { (key, input) -> transform(key, input) }
+
+			retainedMap + diffResultMap
+		}.skip(1)
+
+fun <T, U> Observable<List<T>>.reuse(keySelector: (T) -> Any? = { it }, transform: (T) -> U): Observable<List<U>> =
+		map { it.associateBy(keySelector) }
+				.reuseValues { _, input -> transform(input) }
+				.map { it.values.toList() }
 
 fun <K, V, T> Observable<Map<K, V>>.reuseOrUpdate(transform: (K, V) -> T): Observable<Map<K, T>> =
-		map { it.toList() }
-				.reuse { (key, value) -> key to transform(key, value) }
-				.map { it.toMap() }
+		scan(Pair(emptyMap<K, V>(), emptyMap<K, T>())) { (oldMap, oldResult), newMap ->
+			val keysToRemove = oldMap.keys - newMap.keys
+			val retainedMap = oldResult - keysToRemove
+
+			val diffToTransform = newMap.toList() - oldMap.toList()
+
+			val diffResultMap = diffToTransform.associate { (key, input) -> key to transform(key, input) }
+
+			Pair(newMap, retainedMap + diffResultMap)
+		}
+				.skip(1)
+				.map { it.second }
