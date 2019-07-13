@@ -4,6 +4,7 @@ import io.reactivex.*
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.min
 
 fun <T> Observable<T>.retryWith(transformation: (Throwable) -> Single<Throwable>) = retryWhen { errors -> errors.flatMapSingle(transformation) }
 fun <T> Single<T>.retryWith(transformation: (Throwable) -> Single<Throwable>) = retryWhen { errors -> errors.flatMapSingle(transformation) }
@@ -41,11 +42,12 @@ fun countErrorTransformation(limit: Int, start: Int = 0, updater: (Int) -> Int =
 			}
 		}
 
-
 fun timeoutErrorTransformation(timeout: Long, timeUnit: TimeUnit, timeMsSupplier: () -> Long = { System.currentTimeMillis() }) =
 		@Suppress("ReplaceSingleLineLet")
 		timeMsSupplier().let { timeBefore -> predicateErrorTransformation { _ -> timeMsSupplier() - timeBefore > timeUnit.toMillis(timeout) } }
 
+fun exponentialBackoffTransformation(initialDelayMs: Long = 100L, capDelayMs: Long = 30000L, multiplier: Long = 2L, scheduler: Scheduler = Schedulers.computation()) =
+		variableDelayTransformation<Throwable>(initialDelayMs, scheduler) { delayMs -> min(capDelayMs, delayMs * multiplier) }
 
 fun <T> Observable<T>.onErrorReturnAndThrow(value: T) =
 		onErrorResumeNext { error: Throwable -> Observable.just(value).concatWith(Observable.error(error)) }
