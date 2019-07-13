@@ -1,0 +1,10 @@
+apply from: '../kotlin.gradle'
+
+dependencies {
+    implementation "io.reactivex.rxjava2:rxjava:$RXJAVA_VERSION"
+    implementation "io.reactivex.rxjava2:rxkotlin:$RXKOTLIN_VERSION"
+    testImplementation "junit:junit:$JUNIT_VERSION"
+}
+
+
+
