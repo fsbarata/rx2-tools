@@ -1,16 +1,11 @@
-*.iml
 .gradle
 /local.properties
 .DS_Store
 /build
-/captures
 .idea/
 build
 out/
 artifacts/
-data/jar/
-codegen/
-*.prj
-*.mexw64
+*.iml
 *.iws
 *.ipr
