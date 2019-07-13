@@ -13,3 +13,4 @@ codegen/
 *.prj
 *.mexw64
 *.iws
+*.ipr
