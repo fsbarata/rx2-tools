@@ -30,11 +30,11 @@ fun predicateErrorTransformation(predicate: (Throwable) -> Boolean) = { throwabl
 fun <T> Observable<T>.retryDelayedUntil(delay: Long, timeUnit: TimeUnit, scheduler: Scheduler = Schedulers.computation(), throwablePredicate: ((Throwable) -> Boolean)) =
 		retryWith(combine(delayTransformation(delay, timeUnit, scheduler), predicateErrorTransformation(throwablePredicate)))
 
-fun countErrorTransformation(limit: Int, start: Int = 0, increment: (Int) -> Int = { 1 }) =
+fun countErrorTransformation(limit: Int, start: Int = 0, updater: (Int) -> Int = { it + 1 }) =
 		AtomicInteger(start).let { counter ->
 			{ throwable: Throwable ->
 				val count = counter.get()
-				val newCount = increment(count)
+				val newCount = updater(count)
 				counter.set(newCount)
 				if (count > limit) Single.error(throwable)
 				else Single.just(throwable)
