@@ -6,12 +6,13 @@ import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
-fun <T> delayTransformation(delay: Long, timeUnit: TimeUnit, scheduler: Scheduler = Schedulers.computation()) = { obj: T ->
-	Single.timer(delay, timeUnit, scheduler).map { obj }
-}
+fun <T> delayTransformation(delay: Long, timeUnit: TimeUnit, scheduler: Scheduler = Schedulers.computation()) =
+		delayTransformation<T>({ delay }, timeUnit, scheduler)
 
 fun <T> delayTransformation(delayProvider: (T) -> Long, timeUnit: TimeUnit, scheduler: Scheduler = Schedulers.computation()) = { obj: T ->
-	Single.timer(delayProvider(obj), timeUnit, scheduler).map { obj }
+	val delay = delayProvider(t)
+	if (delay > 0) Single.timer(delayProvider(obj), timeUnit, scheduler).map { obj }
+	else Single.just(obj)
 }
 
 fun <T> variableDelayTransformation(initialDelayMs: Long, scheduler: Scheduler = Schedulers.computation(), delayUpdater: (Long) -> Long) =

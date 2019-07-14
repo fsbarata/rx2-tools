@@ -4,15 +4,7 @@ import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
-
-fun <T> Maybe<T>.delayValues(delayProvider: (T) -> Long, timeUnit: TimeUnit, scheduler: Scheduler = Schedulers.computation()) =
-		flatMapSingleElement { t ->
-			val delay = delayProvider(t)
-			if (delay > 0) Single.timer(delay, timeUnit, scheduler).map { t }
-			else Single.just(t)
-		}
 
 fun <T> List<Single<T>>.zip(defaultIfEmpty: Single<List<T>> = Single.just(emptyList())) =
 		if (isNotEmpty()) Single.zip(this) { args -> args.map { it as T } }
