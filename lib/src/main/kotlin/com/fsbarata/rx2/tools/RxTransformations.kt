@@ -10,7 +10,7 @@ fun <T> delayTransformation(delay: Long, timeUnit: TimeUnit, scheduler: Schedule
 		delayTransformation<T>({ delay }, timeUnit, scheduler)
 
 fun <T> delayTransformation(delayProvider: (T) -> Long, timeUnit: TimeUnit, scheduler: Scheduler = Schedulers.computation()) = { obj: T ->
-	val delay = delayProvider(t)
+	val delay = delayProvider(obj)
 	if (delay > 0) Single.timer(delayProvider(obj), timeUnit, scheduler).map { obj }
 	else Single.just(obj)
 }
