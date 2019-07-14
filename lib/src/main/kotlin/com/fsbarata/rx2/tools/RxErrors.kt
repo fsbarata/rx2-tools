@@ -52,3 +52,8 @@ fun exponentialBackoffTransformation(initialDelayMs: Long = 100L, capDelayMs: Lo
 fun <T> Observable<T>.onErrorReturnAndThrow(value: T) =
 		onErrorResumeNext { error: Throwable -> Observable.just(value).concatWith(Observable.error(error)) }
 
+fun <T> Observable<T>.onErrorComplete(throwablePredicate: (Throwable) -> Boolean): Observable<T> =
+		onErrorResumeNext { throwable: Throwable ->
+			if (throwablePredicate(throwable)) Observable.empty()
+			else Observable.error(throwable)
+		}
