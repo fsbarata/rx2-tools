@@ -6,10 +6,10 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.min
 
-fun <T> Observable<T>.retryWith(transformation: (Throwable) -> Single<Throwable>) = retryWhen { errors -> errors.flatMapSingle(transformation) }
-fun <T> Single<T>.retryWith(transformation: (Throwable) -> Single<Throwable>) = retryWhen { errors -> errors.flatMapSingle(transformation) }
-fun <T> Maybe<T>.retryWith(transformation: (Throwable) -> Single<Throwable>) = retryWhen { errors -> errors.flatMapSingle(transformation) }
-fun Completable.retryWith(transformation: (Throwable) -> Single<Throwable>) = retryWhen { errors -> errors.flatMapSingle(transformation) }
+fun <T> Observable<T>.retryWith(transformation: (Throwable) -> Single<Throwable>): Observable<T> = retryWhen { errors -> errors.flatMapSingle(transformation) }
+fun <T> Single<T>.retryWith(transformation: (Throwable) -> Single<Throwable>): Single<T> = retryWhen { errors -> errors.flatMapSingle(transformation) }
+fun <T> Maybe<T>.retryWith(transformation: (Throwable) -> Single<Throwable>): Maybe<T> = retryWhen { errors -> errors.flatMapSingle(transformation) }
+fun Completable.retryWith(transformation: (Throwable) -> Single<Throwable>): Completable = retryWhen { errors -> errors.flatMapSingle(transformation) }
 
 fun <T> Observable<T>.retryDelayed(delay: Long, timeUnit: TimeUnit, scheduler: Scheduler = Schedulers.computation()) =
 		retryWith(delayTransformation(delay, timeUnit, scheduler))
@@ -49,7 +49,7 @@ fun timeoutErrorTransformation(timeout: Long, timeUnit: TimeUnit, timeMsSupplier
 fun exponentialBackoffTransformation(initialDelayMs: Long = 100L, capDelayMs: Long = 30000L, multiplier: Long = 2L, scheduler: Scheduler = Schedulers.computation()) =
 		variableDelayTransformation<Throwable>(initialDelayMs, scheduler) { delayMs -> min(capDelayMs, delayMs * multiplier) }
 
-fun <T> Observable<T>.onErrorReturnAndThrow(value: T) =
+fun <T> Observable<T>.onErrorReturnAndThrow(value: T): Observable<T> =
 		onErrorResumeNext { error: Throwable -> Observable.just(value).concatWith(Observable.error(error)) }
 
 fun <T> Observable<T>.onErrorComplete(throwablePredicate: (Throwable) -> Boolean): Observable<T> =
