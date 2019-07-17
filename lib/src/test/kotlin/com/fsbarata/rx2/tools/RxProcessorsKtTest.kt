@@ -135,4 +135,24 @@ class RxProcessorsKtTest {
 				}
 	}
 
+	@Test
+	fun test_scanWith() {
+		Observable.just(
+				1.0,
+				5.1,
+				2.9
+		)
+				.scanWith(initialValueFunction = { it.toInt() + 3 }) { acc, newValue -> newValue.toInt() * 2 - acc }
+				.test()
+				.apply {
+					awaitTerminalEvent()
+					assertValueCount(3)
+					assertValues(
+							4,
+							6,
+							-2
+					)
+				}
+	}
+
 }
