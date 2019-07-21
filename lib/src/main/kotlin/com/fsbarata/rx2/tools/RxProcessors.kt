@@ -40,11 +40,12 @@ fun <K, V, T> Observable<Map<K, V>>.reuseOrUpdate(transform: (K, V) -> T): Obser
 				.map { it.second }
 
 
-private data class Optional<T>(val value: T?)
+private class Optional<T>(val value: T?)
 fun <T, R> Observable<T>.scanWith(initialValueFunction: (T) -> R?, accumulator: (R, T) -> R): Observable<R> =
-		scan(Optional<R?>(null)) { (last), newValue ->
+		scan(Optional<R?>(null)) { last, newValue ->
+			val lastValue = last.value
 			Optional(
-					if (last != null) accumulator(last, newValue)
+					if (lastValue != null) accumulator(lastValue, newValue)
 					else initialValueFunction(newValue)
 			)
 		}.mapNotNull { it.value }
