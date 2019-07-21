@@ -30,3 +30,6 @@ inline fun <reified U : Any> Observable<*>.filterOf(): Observable<U> =
 
 fun <T> Maybe<T>.delayIfEmpty(time: Long, timeUnit: TimeUnit, scheduler: Scheduler) =
 		switchIfEmpty(Single.timer(time, timeUnit, scheduler).ignoreElement().toMaybe())
+
+fun <T> Observable<T>.aggregate(): Observable<List<T>> =
+		scan(emptyList<T>()) { list, value -> list + value }.skip(1)
