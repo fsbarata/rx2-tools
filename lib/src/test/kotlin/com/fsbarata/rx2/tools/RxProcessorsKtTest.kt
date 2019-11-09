@@ -142,7 +142,7 @@ class RxProcessorsKtTest {
 				5.1,
 				2.9
 		)
-				.scanWith(initialValueFunction = { it.toInt() + 3 }) { acc, newValue -> newValue.toInt() * 2 - acc }
+				.scanUsing(initialValueFunction = { it.toInt() + 3 }) { acc, newValue -> newValue.toInt() * 2 - acc }
 				.test()
 				.apply {
 					awaitTerminalEvent()
