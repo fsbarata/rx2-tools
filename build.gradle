@@ -1,9 +1,9 @@
 buildscript {
     ext {
-        KOTLIN_VERSION = '1.3.40'
+        KOTLIN_VERSION = '1.3.50'
         JUNIT_VERSION = '4.12'
-        RXJAVA_VERSION = '2.2.1'
-        RXKOTLIN_VERSION = '2.3.0'
+        RXJAVA_VERSION = '2.2.14'
+        RXKOTLIN_VERSION = '2.4.0'
     }
 
     repositories {
