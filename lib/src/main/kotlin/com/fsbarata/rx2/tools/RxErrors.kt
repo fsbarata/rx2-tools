@@ -6,10 +6,10 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.min
 
-fun <T> Observable<T>.retryWith(transformation: (Throwable) -> Single<Throwable>): Observable<T> = retryWhen { errors -> errors.flatMapSingle(transformation) }
-fun <T> Single<T>.retryWith(transformation: (Throwable) -> Single<Throwable>): Single<T> = retryWhen { errors -> errors.flatMapSingle(transformation) }
-fun <T> Maybe<T>.retryWith(transformation: (Throwable) -> Single<Throwable>): Maybe<T> = retryWhen { errors -> errors.flatMapSingle(transformation) }
-fun Completable.retryWith(transformation: (Throwable) -> Single<Throwable>): Completable = retryWhen { errors -> errors.flatMapSingle(transformation) }
+fun <T> Observable<T>.retryWith(transformation: (Throwable) -> Single<*>): Observable<T> = retryWhen { errors -> errors.flatMapSingle(transformation) }
+fun <T> Single<T>.retryWith(transformation: (Throwable) -> Single<*>): Single<T> = retryWhen { errors -> errors.flatMapSingle(transformation) }
+fun <T> Maybe<T>.retryWith(transformation: (Throwable) -> Single<*>): Maybe<T> = retryWhen { errors -> errors.flatMapSingle(transformation) }
+fun Completable.retryWith(transformation: (Throwable) -> Single<*>): Completable = retryWhen { errors -> errors.flatMapSingle(transformation) }
 
 fun <T> Observable<T>.retryDelayed(delay: Long, timeUnit: TimeUnit, scheduler: Scheduler = Schedulers.computation()) =
 		retryWith(delayTransformation(delay, timeUnit, scheduler))

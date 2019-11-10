@@ -25,6 +25,6 @@ fun <T> variableDelayTransformation(initialDelayMs: Long, scheduler: Scheduler =
 			}
 		}
 
-fun <T> combine(vararg transformations: (T) -> Single<T>): (T) -> Single<T> = { obj ->
+fun <T> combine(vararg transformations: (T) -> Single<T>): (T) -> Single<out T> = { obj ->
 	transformations.fold(Single.just(obj)) { single, transformation -> single.flatMap(transformation) }
 }
